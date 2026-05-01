@@ -46,3 +46,25 @@ export async function createTask(formData: FormData) {
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
 }
+
+export async function updateTask(taskId: string, formData: FormData) {
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const deadlineStr = formData.get("deadline") as string;
+  const status = formData.get("status") as string;
+  const assignedTo = formData.get("assignedTo") as string;
+
+  await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      title,
+      description,
+      deadline: new Date(deadlineStr),
+      status,
+      assignedTo: assignedTo || null,
+    }
+  });
+
+  revalidatePath("/tasks");
+  revalidatePath("/dashboard");
+}

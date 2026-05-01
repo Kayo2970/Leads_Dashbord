@@ -61,9 +61,23 @@ export default async function RatingsPage() {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="score">Overall Score (1-5)</Label>
-                <Input id="score" name="score" type="number" min="1" max="5" required placeholder="e.g. 4" className="bg-background/50" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="score">Overall Score (1-5)</Label>
+                  <Input id="score" name="score" type="number" min="1" max="5" defaultValue="3" required className="bg-background/50" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="communication">Communication (1-5)</Label>
+                  <Input id="communication" name="communication" type="number" min="1" max="5" defaultValue="3" required className="bg-background/50" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="punctuality">Punctuality (1-5)</Label>
+                  <Input id="punctuality" name="punctuality" type="number" min="1" max="5" defaultValue="3" required className="bg-background/50" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="quality">Work Quality (1-5)</Label>
+                  <Input id="quality" name="quality" type="number" min="1" max="5" defaultValue="3" required className="bg-background/50" />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -91,14 +105,32 @@ export default async function RatingsPage() {
                     <span className="text-xs text-muted-foreground">{rating.subject.role.replace("_", " ")}</span>
                   </div>
                 </div>
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 ${i < rating.score ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"}`} />
-                  ))}
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-3 w-3 ${i < rating.score ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"}`} />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-primary">OVERALL</span>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col space-y-3">
+            <CardContent className="flex-1 flex flex-col space-y-4">
+              <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/5">
+                <div className="text-center">
+                  <div className="text-[10px] text-muted-foreground uppercase font-bold">Comm</div>
+                  <div className="text-sm font-bold text-primary">{rating.communication}/5</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[10px] text-muted-foreground uppercase font-bold">Time</div>
+                  <div className="text-sm font-bold text-primary">{rating.punctuality}/5</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[10px] text-muted-foreground uppercase font-bold">Quality</div>
+                  <div className="text-sm font-bold text-primary">{rating.quality}/5</div>
+                </div>
+              </div>
+
               <div className="text-sm bg-black/20 p-3 rounded-md text-muted-foreground italic relative">
                 <MessageSquare className="absolute right-2 top-2 h-3 w-3 opacity-30" />
                 "{rating.feedback}"

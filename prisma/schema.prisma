@@ -77,7 +77,10 @@ model Rating {
   task          Task?    @relation(fields: [taskId], references: [id])
   subjectId     String
   subject       User     @relation("RatingSubject", fields: [subjectId], references: [id])
-  score         Int      // 1-5
+  score         Int      // Overall score 1-5
+  communication Int      @default(3) // 1-5
+  punctuality   Int      @default(3) // 1-5
+  quality       Int      @default(3) // 1-5
   feedback      String?
   giverId       String
   giver         User     @relation("RatingGiver", fields: [giverId], references: [id])

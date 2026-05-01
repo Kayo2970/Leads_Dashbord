@@ -21,6 +21,9 @@ export async function createRating(formData: FormData) {
   const subjectId = formData.get("subjectId") as string;
   const taskId = formData.get("taskId") as string;
   const score = parseInt(formData.get("score") as string, 10);
+  const communication = parseInt(formData.get("communication") as string, 10) || 3;
+  const punctuality = parseInt(formData.get("punctuality") as string, 10) || 3;
+  const quality = parseInt(formData.get("quality") as string, 10) || 3;
   const feedback = formData.get("feedback") as string;
 
   const professor = await prisma.user.findUnique({
@@ -32,6 +35,9 @@ export async function createRating(formData: FormData) {
   await prisma.rating.create({
     data: {
       score,
+      communication,
+      punctuality,
+      quality,
       feedback,
       subjectId,
       giverId: professor.id,
