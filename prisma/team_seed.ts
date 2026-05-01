@@ -45,17 +45,16 @@ const teamData = {
 };
 
 async function main() {
-  console.log("Starting team sync with encrypted profiles...");
+  console.log("Starting team sync with Many-to-Many support...");
   const defaultPassword = await bcrypt.hash("password123", 12);
 
-  // 1. Ensure Committees exist
-  const committees = [
+  const committeesList = [
     "Management", "Coordination", "Administration", "Operations and Logistics",
     "Design and Social Media", "Leadership and Development", "Sustainability and Innovation",
     "Marketing and Branding", "Finance and Sponsorship", "Research and Development"
   ];
 
-  for (const name of committees) {
+  for (const name of committeesList) {
     await prisma.committee.upsert({
       where: { id: name },
       update: {},
@@ -63,7 +62,6 @@ async function main() {
     });
   }
 
-  // 2. Insert Executive Council
   for (const person of teamData.executiveCouncil) {
     await prisma.user.upsert({
       where: { email: person.email },
@@ -72,7 +70,6 @@ async function main() {
     });
   }
 
-  // 3. Insert Seniors
   for (const person of teamData.seniors) {
     await prisma.user.upsert({
       where: { email: person.email },
@@ -81,7 +78,6 @@ async function main() {
     });
   }
 
-  // 4. Insert Organizers
   for (const person of teamData.organizers) {
     await prisma.user.upsert({
       where: { email: person.email },
@@ -89,22 +85,26 @@ async function main() {
         fullName: person.name, 
         role: 'student_member', 
         designation: person.role,
-        committeeId: person.committee,
-        profilePicture: person.image
+        profilePicture: person.image,
+        committees: {
+          connect: { id: person.committee }
+        }
       },
       create: { 
         email: person.email, 
         fullName: person.name, 
         role: 'student_member', 
         designation: person.role,
-        committeeId: person.committee,
         profilePicture: person.image,
-        password: defaultPassword
+        password: defaultPassword,
+        committees: {
+          connect: { id: person.committee }
+        }
       }
     });
   }
 
-  console.log("Encrypted team sync completed successfully!");
+  console.log("Multi-committee team sync completed successfully!");
 }
 
 main()

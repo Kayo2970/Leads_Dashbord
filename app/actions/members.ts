@@ -6,7 +6,9 @@ import { revalidatePath } from "next/cache";
 export async function getMembers() {
   return await prisma.user.findMany({
     orderBy: { fullName: "asc" },
-    include: { committee: true }
+    include: {
+      committees: true
+    }
   });
 }
 
@@ -22,8 +24,10 @@ export async function createMember(formData: FormData) {
       fullName,
       email,
       role,
-      designation: designation || null,
-      committeeId: committeeId || null
+      designation,
+      committees: committeeId ? {
+        connect: { id: committeeId }
+      } : undefined
     }
   });
 
@@ -34,7 +38,6 @@ export async function updateMember(userId: string, formData: FormData) {
   const fullName = formData.get("fullName") as string;
   const role = formData.get("role") as string;
   const designation = formData.get("designation") as string;
-  const committeeId = formData.get("committeeId") as string;
   const email = formData.get("email") as string;
 
   await prisma.user.update({
@@ -43,7 +46,6 @@ export async function updateMember(userId: string, formData: FormData) {
       fullName,
       role,
       designation,
-      committeeId: committeeId || null,
       email
     }
   });

@@ -18,10 +18,9 @@ model User {
   isAdmin         Boolean     @default(false)
   role            String      // super_admin, faculty_admin, student_member
   designation     String?
-  committeeId     String?
   profilePicture  String?
   permissions     String?     // JSON string for granular access
-  committee       Committee?  @relation(fields: [committeeId], references: [id])
+  committees      Committee[] // Many-to-many relationship
   
   createdEvents       Event[]        @relation("EventCreator")
   assignedTasks       Task[]         @relation("TaskAssignee")

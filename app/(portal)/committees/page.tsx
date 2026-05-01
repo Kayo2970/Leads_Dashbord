@@ -18,7 +18,7 @@ export default async function CommitteesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Committees</h1>
           <p className="text-muted-foreground mt-1">
-            View and manage organizational committees and their members.
+            View and manage organizational committees. Members can be part of multiple committees.
           </p>
         </div>
 
@@ -66,7 +66,6 @@ export default async function CommitteesPage() {
                   </div>
                 </div>
                 
-                {/* Add Member to this Committee */}
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
@@ -79,7 +78,7 @@ export default async function CommitteesPage() {
                       <DialogDescription>Select a member to join this committee.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2 mt-4 max-h-[300px] overflow-y-auto pr-2">
-                      {members.filter(m => m.committeeId !== committee.id).map(m => (
+                      {members.filter(m => !m.committees.some(c => c.id === committee.id)).map(m => (
                         <form key={m.id} action={assignMemberToCommittee.bind(null, committee.id, m.id)}>
                           <button type="submit" className="w-full flex items-center justify-between p-2 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 transition-all text-sm group">
                             <div className="flex items-center gap-3">
@@ -123,7 +122,7 @@ export default async function CommitteesPage() {
                           <span className="text-[9px] text-muted-foreground uppercase">{user.designation || "Member"}</span>
                         </div>
                       </div>
-                      <form action={removeMemberFromCommittee.bind(null, user.id)}>
+                      <form action={removeMemberFromCommittee.bind(null, committee.id, user.id)}>
                         <Button type="submit" variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all">
                           <X className="h-3 w-3" />
                         </Button>

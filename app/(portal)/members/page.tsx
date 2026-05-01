@@ -1,12 +1,11 @@
 import { getMembers, createMember, updateMember } from "@/app/actions/members";
 import { getCommittees } from "@/app/actions/committees";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, User, Shield, Pencil, Mail } from "lucide-react";
+import { UserPlus, User, Shield, Pencil, Mail, Briefcase } from "lucide-react";
 
 export default async function MembersPage() {
   const members = await getMembers();
@@ -18,11 +17,10 @@ export default async function MembersPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Members</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your organization's team and committee assignments.
+            Manage team members and their multiple committee assignments.
           </p>
         </div>
         
-        {/* Onboard Member Dialog */}
         <Dialog>
           <DialogTrigger asChild>
             <Button>
@@ -34,7 +32,7 @@ export default async function MembersPage() {
             <DialogHeader>
               <DialogTitle>Onboard New Member</DialogTitle>
               <DialogDescription>
-                Add a new member to the LEADS Portal. They can then log in with their email.
+                Add a new member to the portal.
               </DialogDescription>
             </DialogHeader>
             <form action={createMember} className="space-y-4 mt-4">
@@ -56,7 +54,7 @@ export default async function MembersPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="committeeId">Committee</Label>
+                  <Label htmlFor="committeeId">Primary Committee</Label>
                   <select id="committeeId" name="committeeId" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm">
                     <option value="">None</option>
                     {committees.map(c => (
@@ -113,24 +111,13 @@ export default async function MembersPage() {
                       <Label htmlFor="email">Email</Label>
                       <Input id="email" name="email" defaultValue={member.email} type="email" required className="bg-background/50" />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
-                        <select id="role" name="role" defaultValue={member.role} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm">
-                          <option value="student_member">Student</option>
-                          <option value="faculty_admin">Faculty/Core</option>
-                          <option value="super_admin">Super Admin</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="committeeId">Committee</Label>
-                        <select id="committeeId" name="committeeId" defaultValue={member.committeeId || ""} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm">
-                          <option value="">None</option>
-                          {committees.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                          ))}
-                        </select>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Access Level</Label>
+                      <select id="role" name="role" defaultValue={member.role} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm">
+                        <option value="student_member">Student</option>
+                        <option value="faculty_admin">Faculty/Core</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="designation">Designation</Label>
@@ -149,6 +136,17 @@ export default async function MembersPage() {
                   <span className="ml-auto text-[10px] font-bold px-2 py-0.5 bg-primary/20 text-primary rounded-sm uppercase">
                     {member.role.replace("_", " ")}
                   </span>
+                </div>
+                <div className="flex flex-wrap gap-1 bg-black/20 p-2 rounded-md">
+                  <Briefcase className="mr-2 h-3 w-3 text-primary shrink-0 self-center" />
+                  {member.committees.map(c => (
+                    <span key={c.id} className="text-[9px] bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-muted-foreground">
+                      {c.name}
+                    </span>
+                  ))}
+                  {member.committees.length === 0 && (
+                    <span className="text-[9px] text-muted-foreground italic">No committees assigned</span>
+                  )}
                 </div>
                 <div className="flex items-center text-xs text-muted-foreground bg-black/20 p-2 rounded-md">
                   <Mail className="mr-2 h-3 w-3 text-primary shrink-0" />
