@@ -73,15 +73,15 @@ model Task {
 
 model Rating {
   id            String   @id @default(uuid())
-  taskId        String
-  task          Task     @relation(fields: [taskId], references: [id])
-  memberId      String
-  member        User     @relation("RatingSubject", fields: [memberId], references: [id])
+  taskId        String?
+  task          Task?    @relation(fields: [taskId], references: [id])
+  subjectId     String
+  subject       User     @relation("RatingSubject", fields: [subjectId], references: [id])
   score         Int      // 1-5
-  notes         String?
-  ratedBy       String
-  rater         User     @relation("RatingGiver", fields: [ratedBy], references: [id])
-  ratedAt       DateTime @default(now())
+  feedback      String?
+  giverId       String
+  giver         User     @relation("RatingGiver", fields: [giverId], references: [id])
+  createdAt     DateTime @default(now())
 }
 
 model Contribution {
