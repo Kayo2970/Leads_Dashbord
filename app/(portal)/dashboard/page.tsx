@@ -6,22 +6,22 @@ import { CalendarDays, CheckSquare, Star, Clock, PlusCircle } from "lucide-react
 export default function DashboardPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase italic">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm font-medium">
             Welcome back. Here is what is happening across LEADS today.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button>
+        <div className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto font-black uppercase tracking-widest text-[10px] h-10 rounded-full shadow-xl shadow-primary/10">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Event
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
@@ -64,8 +64,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 glass-card">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+        <Card className="lg:col-span-4 glass-card">
           <CardHeader>
             <CardTitle>Recent Tasks</CardTitle>
             <CardDescription>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="col-span-3 glass-card">
+        <Card className="lg:col-span-3 glass-card">
           <CardHeader>
             <CardTitle>Announcements</CardTitle>
             <CardDescription>

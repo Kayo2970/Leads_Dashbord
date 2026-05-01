@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileNav } from "@/components/mobile-nav";
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
   const navItems = [
@@ -66,21 +67,24 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        <header className="h-16 glass-card border-b-0 border-b-white/5 flex items-center justify-between px-6 shrink-0 m-4 mb-0 rounded-b-none backdrop-blur-2xl bg-card/40">
-          <div className="md:hidden font-bold text-lg text-primary">LEADS</div>
+        <header className="h-16 glass-card border-b-0 border-b-white/5 flex items-center justify-between px-4 md:px-6 shrink-0 m-2 md:m-4 mb-0 rounded-b-none backdrop-blur-2xl bg-card/40">
+          <div className="flex items-center gap-3">
+            <MobileNav />
+            <div className="md:hidden font-black text-xl text-primary tracking-tighter italic uppercase">LEADS</div>
+          </div>
           <div className="flex-1"></div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <ThemeToggle />
             <Link href="/profile">
-              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm border border-primary/30 overflow-hidden hover:ring-2 ring-primary/50 transition-all cursor-pointer">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black text-xs border border-primary/30 overflow-hidden hover:ring-2 ring-primary/50 transition-all cursor-pointer">
                 {/* Normally we'd render profilePic or initials here */}
                 SM
               </div>
             </Link>
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto flex flex-col">
-          <div className="flex-1 p-6">
+        <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar">
+          <div className="flex-1 p-4 md:p-6">
             {children}
           </div>
           

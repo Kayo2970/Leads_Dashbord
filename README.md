@@ -14,6 +14,7 @@ LEADS Portal is an internal office management system with built-in HR functional
 - **Broadcast System:** Post announcements globally or target specific committees.
 - **Profile Customization:** Personalize your own profile with picture URLs, designations, and details.
 - **SQL Backend:** High-performance local SQLite database powered by Prisma ORM and a singleton connection pattern.
+- **Multi-Device Optimization:** Fully optimized for Mobile, Tablet (iPad), Laptop, and Large Desktop screens with a new intelligent mobile navigation system.
 
 ## 🛠 Tech Stack
 
@@ -65,4 +66,4 @@ Access to menu items is controlled by a Global Policy:
 All major architectural changes and security updates are tracked in [LOGS.md](./LOGS.md).
 
 ---
-*Built for the LEADS Next Gen Centre | Version 1.1*
+*Built for the LEADS Next Gen Centre | Version 1.2*

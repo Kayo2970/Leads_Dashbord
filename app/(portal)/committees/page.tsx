@@ -36,27 +36,26 @@ export default function CommitteesPage() {
   if (loading) return <div className="flex items-center justify-center h-96 text-muted-foreground animate-pulse font-bold tracking-widest uppercase text-xs">Synchronizing Directory...</div>
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-20 px-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent italic uppercase">Committees & Departments</h1>
-          <p className="text-muted-foreground mt-2 font-medium flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="w-full lg:w-auto">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent italic uppercase">Committees & Departments</h1>
+          <p className="text-muted-foreground mt-2 text-xs md:text-sm font-medium flex items-center gap-2">
              <Shield className="h-4 w-4 text-primary" /> LEADS Next Gen Centre Directory
           </p>
         </motion.div>
         
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="Search departments..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all h-10"
             />
           </div>
-          <Button size="sm" className="rounded-full px-6 shadow-lg shadow-primary/20">
+          <Button className="rounded-full px-6 shadow-lg shadow-primary/20 font-black uppercase tracking-widest text-[10px] h-10 w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Unit
           </Button>

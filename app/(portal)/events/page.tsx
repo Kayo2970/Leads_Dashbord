@@ -14,17 +14,17 @@ export default async function EventsPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Events</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase italic">Events</h1>
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm font-medium">
             Manage upcoming summits, workshops, and portal events.
           </p>
         </div>
         
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="rounded-full shadow-xl shadow-primary/10 w-full sm:w-auto font-black uppercase tracking-widest text-[10px] h-10">
               <Plus className="mr-2 h-4 w-4" />
               New Event
             </Button>

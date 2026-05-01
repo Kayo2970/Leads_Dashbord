@@ -1,5 +1,13 @@
 # LEADS Portal - Activity & Security Logs
 
+## [2026-05-01] Responsiveness & UX Optimization (v1.2)
+- **Mobile Navigation**: Implemented a cinematic slide-out `MobileNav` component using Framer Motion for small screens.
+- **Adaptive Grids**: Refined dashboard and portal grids to morph seamlessly between 1, 2, and 4 columns based on viewport width.
+- **Scrollable Interfaces**: Integrated horizontal scrolling for filter bars and chips on mobile to prevent layout breakage.
+- **Consistent Typography**: Unified header styles and font sizes across all pages for a premium, italicized high-fidelity look.
+- **Break-Inside Control**: Applied masonry-style logic to committee cards for optimal tablet/iPad reading.
+- **Component Polish**: Upgraded buttons to full-width on mobile and added shadow/glow effects for better touch targets.
+
 ## [2026-05-01] Major Security & Core Update
 - **Encryption Implementation**: Integrated `bcryptjs` for industrial-grade password hashing.
 - **Database Wipe**: Removed all mock data to prepare for production-grade entry.

@@ -22,40 +22,39 @@ export default async function MembersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Members</h1>
-          <p className="text-muted-foreground mt-1">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div className="w-full lg:w-auto">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase italic">Members</h1>
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm font-medium">
             Manage team members and their assignments. ({members.length} total)
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          {/* Filter Dropdown (Simplified with Links for now) */}
-          <div className="flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-white/5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-1 bg-black/20 p-1 rounded-full border border-white/5 overflow-x-auto no-scrollbar whitespace-nowrap">
             <Link 
               href={`/members?sort=${currentSort}&filter=all`}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${currentFilter === "all" ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all shrink-0 ${currentFilter === "all" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"}`}
             >
               All
             </Link>
             <Link 
               href={`/members?sort=${currentSort}&filter=super_admin`}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${currentFilter === "super_admin" ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all shrink-0 ${currentFilter === "super_admin" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"}`}
             >
               Admins
             </Link>
             <Link 
               href={`/members?sort=${currentSort}&filter=student_member`}
-              className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${currentFilter === "student_member" ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all shrink-0 ${currentFilter === "student_member" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"}`}
             >
               Trainees
             </Link>
           </div>
-
+ 
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="rounded-full shadow-xl shadow-primary/10 w-full sm:w-auto font-black uppercase tracking-widest text-[10px] h-10">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Onboard
               </Button>
