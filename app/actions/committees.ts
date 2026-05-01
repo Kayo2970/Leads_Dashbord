@@ -28,3 +28,23 @@ export async function createCommittee(formData: FormData) {
   revalidatePath("/members");
   revalidatePath("/tasks");
 }
+
+export async function assignMemberToCommittee(committeeId: string, userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { committeeId }
+  });
+
+  revalidatePath("/committees");
+  revalidatePath("/members");
+}
+
+export async function removeMemberFromCommittee(userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { committeeId: null }
+  });
+
+  revalidatePath("/committees");
+  revalidatePath("/members");
+}
