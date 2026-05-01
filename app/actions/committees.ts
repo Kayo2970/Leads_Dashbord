@@ -4,13 +4,34 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function getCommittees() {
-  return await prisma.committee.findMany({
+  const committees = await prisma.committee.findMany({
     orderBy: { name: "asc" },
     include: {
       users: true,
       tasks: true
     }
   });
+
+  // Sort users within each committee by hierarchy first, then name
+  const rolePriority: Record<string, number> = {
+    super_admin: 1,
+    faculty_admin: 2,
+    student_member: 3
+  };
+
+  return committees.map(committee => ({
+    ...committee,
+    users: committee.users.sort((a, b) => {
+      const priorityA = rolePriority[a.role] || 4;
+      const priorityB = rolePriority[b.role] || 4;
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      return a.fullName.localeCompare(b.fullName);
+    })
+  }));
 }
 
 export async function createCommittee(formData: FormData) {
