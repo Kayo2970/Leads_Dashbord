@@ -89,19 +89,29 @@ const traineeData = [
   // Research and Development
   { name: 'Archana S Nair', dept: 'FMC', division: 'Research and Development' },
 
-  // Faculty Ambassador
-  { name: 'Aryaman Sisodia', dept: 'AAE', division: 'Coordination' },
-  { name: 'Vaishnavi Yadav', dept: 'CSE', division: 'Coordination' },
-  { name: 'Ridhviraj Anil Rikke', dept: 'AAE', division: 'Coordination' },
-  { name: 'Shodhan Bekal', dept: 'FMHCET', division: 'Coordination' },
-  { name: 'S. Akhila', dept: 'FLAHS', division: 'Coordination' },
-  { name: 'Sufiya Simin Shiekh', dept: 'SSS', division: 'Coordination' },
-  { name: 'Abdul Aziz', dept: 'FPH', division: 'Coordination' },
+  // Faculty Ambassadors (Dedicated Committee)
+  { name: 'Aryaman Sisodia', dept: 'AAE', division: 'Faculty Ambassadors' },
+  { name: 'Vaishnavi Yadav', dept: 'CSE', division: 'Faculty Ambassadors' },
+  { name: 'Ridhviraj Anil Rikke', dept: 'AAE', division: 'Faculty Ambassadors' },
+  { name: 'Shodhan Bekal', dept: 'FMHCET', division: 'Faculty Ambassadors' },
+  { name: 'S. Akhila', dept: 'FLAHS', division: 'Faculty Ambassadors' },
+  { name: 'Sufiya Simin Shiekh', dept: 'SSS', division: 'Faculty Ambassadors' },
+  { name: 'Abdul Aziz', dept: 'FPH', division: 'Faculty Ambassadors' },
 ];
 
 async function main() {
   console.log("Syncing Trainee Associates from PDF...");
   const defaultPassword = await bcrypt.hash("password123", 12);
+
+  // Ensure all divisions exist as committees
+  const uniqueDivisions = [...new Set(traineeData.map(t => t.division))];
+  for (const div of uniqueDivisions) {
+    await prisma.committee.upsert({
+      where: { id: div },
+      update: {},
+      create: { id: div, name: div, description: `${div} Committee` }
+    });
+  }
 
   for (const trainee of traineeData) {
     const email = `${trainee.name.toLowerCase().replace(/\s+/g, '.')}@msruas.ac.in`;
@@ -113,7 +123,7 @@ async function main() {
         role: 'student_member',
         designation: `Trainee Associate (${trainee.dept})`,
         committees: {
-          connect: { id: trainee.division }
+          set: [{ id: trainee.division }]
         }
       },
       create: {
