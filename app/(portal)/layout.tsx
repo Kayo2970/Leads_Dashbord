@@ -71,9 +71,12 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
           <div className="flex-1"></div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm border border-primary/30">
-              AD
-            </div>
+            <Link href="/profile">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm border border-primary/30 overflow-hidden hover:ring-2 ring-primary/50 transition-all cursor-pointer">
+                {/* Normally we'd render profilePic or initials here */}
+                SM
+              </div>
+            </Link>
           </div>
         </header>
         <div className="flex-1 overflow-y-auto p-6 bg-transparent">
