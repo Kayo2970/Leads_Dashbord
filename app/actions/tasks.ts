@@ -2,11 +2,29 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-const MOCK_PROFESSOR_EMAIL = "professor@msruas.ac.in";
 
-export async function getTasks() {
+// Updated to use the Root user email as a fallback for task creation
+const MOCK_PROFESSOR_EMAIL = "root@leads.msruas.ac.in";
+
+export async function getTasks(searchParams?: { sort?: string; filter?: string }) {
+  const where: any = {};
+  
+  if (searchParams?.filter && searchParams.filter !== "all") {
+    where.status = searchParams.filter;
+  }
+
+  const orderBy: any = {};
+  if (searchParams?.sort === "deadline_desc") {
+    orderBy.deadline = "desc";
+  } else if (searchParams?.sort === "title") {
+    orderBy.title = "asc";
+  } else {
+    orderBy.deadline = "asc"; // Default: Soonest first
+  }
+
   return await prisma.task.findMany({
-    orderBy: { deadline: "asc" },
+    where,
+    orderBy,
     include: {
       event: true,
       assignee: true,
@@ -27,7 +45,7 @@ export async function createTask(formData: FormData) {
     where: { email: MOCK_PROFESSOR_EMAIL }
   });
 
-  if (!professor) throw new Error("Professor user not found");
+  if (!professor) throw new Error("Admin user not found");
 
   await prisma.task.create({
     data: {

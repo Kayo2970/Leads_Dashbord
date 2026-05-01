@@ -3,9 +3,25 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function getMembers() {
+export async function getMembers(searchParams?: { sort?: string; filter?: string }) {
+  const where: any = {};
+  
+  if (searchParams?.filter && searchParams.filter !== "all") {
+    where.role = searchParams.filter;
+  }
+
+  const orderBy: any = {};
+  if (searchParams?.sort === "name_desc") {
+    orderBy.fullName = "desc";
+  } else if (searchParams?.sort === "role") {
+    orderBy.role = "asc";
+  } else {
+    orderBy.fullName = "asc";
+  }
+
   return await prisma.user.findMany({
-    orderBy: { fullName: "asc" },
+    where,
+    orderBy,
     include: {
       committees: true
     }
