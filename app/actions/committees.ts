@@ -36,11 +36,13 @@ export async function getCommittees() {
 
 export async function createCommittee(formData: FormData) {
   const name = formData.get("name") as string;
+  const type = formData.get("type") as string || "DIVISION";
   const description = formData.get("description") as string;
 
   await prisma.committee.create({
     data: {
       name,
+      type,
       description
     }
   });

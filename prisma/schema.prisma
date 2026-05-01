@@ -43,6 +43,7 @@ model GroupPolicy {
 model Committee {
   id            String         @id @default(uuid())
   name          String
+  type          String         @default("DIVISION") // ADVISORY, CORE, DIVISION
   description   String?
   users         User[]
   tasks         Task[]

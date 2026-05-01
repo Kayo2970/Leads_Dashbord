@@ -48,17 +48,32 @@ async function main() {
   console.log("Starting team sync with Many-to-Many support...");
   const defaultPassword = await bcrypt.hash("password123", 12);
 
-  const committeesList = [
-    "Management", "Coordination", "Administration", "Operations and Logistics",
-    "Design and Social Media", "Leadership and Development", "Sustainability and Innovation",
-    "Marketing and Branding", "Finance and Sponsorship", "Research and Development"
+  const advisoryCommittees = [
+    { name: "Patrons", type: "ADVISORY" },
+    { name: "Chief Advisors", type: "ADVISORY" },
+    { name: "Faculty Coordination", type: "ADVISORY" }
   ];
 
-  for (const name of committeesList) {
+  const coreCommittees = [
+    { name: "Management", type: "CORE" },
+    { name: "Coordination", type: "CORE" },
+    { name: "Administration", type: "CORE" }
+  ];
+
+  const divisionCommittees = [
+    "Operations and Logistics", "Design and Social Media", 
+    "Leadership and Development", "Sustainability and Innovation",
+    "Marketing and Branding", "Finance and Sponsorship", 
+    "Research and Development", "Faculty Ambassadors"
+  ].map(name => ({ name, type: "DIVISION" }));
+
+  const allCommittees = [...advisoryCommittees, ...coreCommittees, ...divisionCommittees];
+
+  for (const comm of allCommittees) {
     await prisma.committee.upsert({
-      where: { id: name },
-      update: {},
-      create: { id: name, name, description: `${name} Committee` }
+      where: { id: comm.name },
+      update: { type: comm.type },
+      create: { id: comm.name, name: comm.name, type: comm.type, description: `${comm.name} Committee` }
     });
   }
 
