@@ -41,8 +41,24 @@ To run this application locally:
    Open [http://localhost:3000](http://localhost:3000) in your browser. 
    *(Note: If viewing on another device on your local network, run `npm run dev -- -H 0.0.0.0`)*
 
-## 🎨 Design System
-The UI utilizes a deep blue/cyan colour token system directly inspired by the official LEADS website, ensuring brand consistency across internal tools. All cards feature frosted glass transparency (`backdrop-filter`) and smooth hover animations.
+## 🔐 Login Details (Local Testing)
+
+For local development and testing, you can use the following mock accounts representing the 3-tier hierarchy:
+
+**Level 1: Professor / Super Admin**
+- Email: `professor@msruas.ac.in`
+- Password: `password123`
+- *Capabilities: Assign work to anyone, review timelines, generate/export reports, full overview.*
+
+**Level 2: Core Committee Member**
+- Email: `core@msruas.ac.in`
+- Password: `password123`
+- *Capabilities: Assign work to trainees, review trainee performance, manage specific events.*
+
+**Level 3: Trainee / Student Member**
+- Email: `trainee@msruas.ac.in`
+- Password: `password123`
+- *Capabilities: View assigned work, submit completed tasks, view personal performance ratings.*
 
 ---
 *Built for the LEADS Next Gen Centre | Version 1.0*
