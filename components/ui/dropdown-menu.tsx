@@ -22,7 +22,6 @@ function DropdownMenuTrigger({
   if (asChild && React.isValidElement(children)) {
     return (
       <MenuPrimitive.Trigger
-        data-slot="dropdown-menu-trigger"
         render={children}
         {...props}
       />

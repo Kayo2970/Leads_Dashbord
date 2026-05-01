@@ -19,7 +19,6 @@ function DialogTrigger({
   if (asChild && React.isValidElement(children)) {
     return (
       <DialogPrimitive.Trigger
-        data-slot="dialog-trigger"
         render={children}
         {...props}
       />
