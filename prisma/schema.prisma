@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  fullName         String
+  role             String       // super_admin, faculty_admin, student_member
+  committeeId      String?
+  committee        Committee?   @relation(fields: [committeeId], references: [id])
+  createdAt        DateTime     @default(now())
+  createdEvents    Event[]      @relation("EventCreator")
+  assignedTasks    Task[]       @relation("TaskAssignee")
+  createdTasks     Task[]       @relation("TaskCreator")
+  receivedRatings  Rating[]     @relation("RatingSubject")
+  givenRatings     Rating[]     @relation("RatingGiver")
+  contributions    Contribution[] @relation("ContributionSubject")
+  loggedContributions Contribution[] @relation("ContributionLogger")
+  announcements    Announcement[] @relation("AnnouncementCreator")
+}
+
+model Committee {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  users         User[]
+  tasks         Task[]
+  announcements Announcement[]
+}
+
+model Event {
+  id            String         @id @default(uuid())
+  name          String
+  date          DateTime
+  description   String?
+  createdBy     String
+  creator       User           @relation("EventCreator", fields: [createdBy], references: [id])
+  createdAt     DateTime       @default(now())
+  tasks         Task[]
+  contributions Contribution[]
+}
+
+model Task {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  eventId       String?
+  event         Event?    @relation(fields: [eventId], references: [id])
+  committeeId   String?
+  committee     Committee? @relation(fields: [committeeId], references: [id])
+  assignedTo    String
+  assignee      User      @relation("TaskAssignee", fields: [assignedTo], references: [id])
+  deadline      DateTime?
+  status        String    @default("pending") // pending, in_progress, completed
+  createdBy     String
+  creator       User      @relation("TaskCreator", fields: [createdBy], references: [id])
+  createdAt     DateTime  @default(now())
+  ratings       Rating[]
+}
+
+model Rating {
+  id            String   @id @default(uuid())
+  taskId        String
+  task          Task     @relation(fields: [taskId], references: [id])
+  memberId      String
+  member        User     @relation("RatingSubject", fields: [memberId], references: [id])
+  score         Int      // 1-5
+  notes         String?
+  ratedBy       String
+  rater         User     @relation("RatingGiver", fields: [ratedBy], references: [id])
+  ratedAt       DateTime @default(now())
+}
+
+model Contribution {
+  id            String   @id @default(uuid())
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id])
+  memberId      String
+  member        User     @relation("ContributionSubject", fields: [memberId], references: [id])
+  description   String
+  loggedBy      String
+  logger        User     @relation("ContributionLogger", fields: [loggedBy], references: [id])
+  loggedAt      DateTime @default(now())
+}
+
+model Announcement {
+  id            String     @id @default(uuid())
+  title         String
+  body          String
+  target        String     // all, committee
+  committeeId   String?
+  committee     Committee? @relation(fields: [committeeId], references: [id])
+  createdBy     String
+  creator       User       @relation("AnnouncementCreator", fields: [createdBy], references: [id])
+  createdAt     DateTime   @default(now())
+}
