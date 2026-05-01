@@ -1,35 +1,54 @@
-import { getCommittees, createCommittee, assignMemberToCommittee, removeMemberFromCommittee } from "@/app/actions/committees";
-import { getMembers } from "@/app/actions/members";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Users, Plus, UserPlus, X, Shield, LayoutGrid, ChevronDown, Award, Users2, Workflow } from "lucide-react";
+"use client"
 
-export default async function CommitteesPage() {
-  const committees = await getCommittees();
-  const members = await getMembers();
+import * as React from "react"
+import { getCommittees, createCommittee, assignMemberToCommittee, removeMemberFromCommittee } from "@/app/actions/committees"
+import { getMembers } from "@/app/actions/members"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Users, Plus, UserPlus, X, Shield, ChevronDown, Award, Users2, Workflow, ChevronRight } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
 
-  const advisory = committees.filter(c => c.type === "ADVISORY");
-  const core = committees.filter(c => c.type === "CORE");
-  const divisions = committees.filter(c => c.type === "DIVISION");
+export default function CommitteesPage() {
+  const [committees, setCommittees] = React.useState<any[]>([])
+  const [members, setMembers] = React.useState<any[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    async function load() {
+      const c = await getCommittees()
+      const m = await getMembers()
+      setCommittees(c)
+      setMembers(m)
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const advisory = committees.filter(c => c.type === "ADVISORY")
+  const core = committees.filter(c => c.type === "CORE")
+  const divisions = committees.filter(c => c.type === "DIVISION")
+
+  if (loading) return <div className="flex items-center justify-center h-96 text-muted-foreground animate-pulse font-bold tracking-widest uppercase text-xs">Loading Hierarchy...</div>
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto pb-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organization Structure</h1>
-          <p className="text-muted-foreground mt-1">
-            Browse the LEADS Next Gen Centre hierarchy and committee assignments.
+    <div className="space-y-12 max-w-6xl mx-auto pb-20 px-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+          <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent italic">ORGANIZATION STRUCTURE</h1>
+          <p className="text-muted-foreground mt-2 font-medium">
+            LEADS Next Gen Centre | Dynamic Leadership Directory
           </p>
-        </div>
+        </motion.div>
         
         <Dialog>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="border-primary/20 hover:bg-primary/10">
+            <Button size="sm" variant="outline" className="border-primary/20 hover:bg-primary/10 rounded-full px-6 bg-primary/5">
               <Plus className="mr-2 h-4 w-4" />
-              New Unit
+              Add Unit
             </Button>
           </DialogTrigger>
           <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
@@ -60,17 +79,15 @@ export default async function CommitteesPage() {
         </Dialog>
       </div>
 
-      {/* Advisory & Faculty Section (Expandable/Dropdown type header) */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 rounded-xl border border-primary/20">
-          <Award className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-primary">Advisory & Faculty Committee</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Leadership & Mentorship</p>
+      {/* 1st Tier: Advisory */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+          <div className="flex items-center gap-3 px-6 py-2 bg-primary/10 rounded-full border border-primary/20 backdrop-blur-md">
+            <Award className="h-5 w-5 text-primary" />
+            <h2 className="text-sm font-black tracking-widest text-primary uppercase">Advisory & Mentorship</h2>
           </div>
-          <div className="ml-auto flex items-center gap-2">
-             <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-1 rounded tracking-tighter uppercase">{advisory.length} Units</span>
-          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {advisory.map((committee) => (
@@ -79,17 +96,15 @@ export default async function CommitteesPage() {
         </div>
       </section>
 
-      {/* Core Committee Section */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-secondary/10 rounded-xl border border-secondary/20">
-          <Shield className="h-6 w-6 text-secondary-foreground" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">Core Executive Committee</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Management & Strategy</p>
+      {/* 2nd Tier: Core */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent"></div>
+          <div className="flex items-center gap-3 px-6 py-2 bg-secondary/10 rounded-full border border-secondary/20 backdrop-blur-md">
+            <Shield className="h-5 w-5 text-secondary-foreground" />
+            <h2 className="text-sm font-black tracking-widest uppercase">Core Executive Council</h2>
           </div>
-          <div className="ml-auto">
-             <span className="text-[10px] font-black bg-secondary/20 text-secondary-foreground px-2 py-1 rounded tracking-tighter uppercase">{core.length} Units</span>
-          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent"></div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {core.map((committee) => (
@@ -98,130 +113,170 @@ export default async function CommitteesPage() {
         </div>
       </section>
 
-      {/* Divisions Section */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-xl border border-white/10">
-          <Workflow className="h-6 w-6 text-muted-foreground" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">Functional Divisions</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Operations & Trainees</p>
+      {/* 3rd Tier: Divisions (Dynamic Columns) */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+          <div className="flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
+            <Workflow className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-sm font-black tracking-widest uppercase text-muted-foreground">Functional Divisions</h2>
           </div>
-          <div className="ml-auto">
-             <span className="text-[10px] font-black bg-white/10 text-muted-foreground px-2 py-1 rounded tracking-tighter uppercase">{divisions.length} Units</span>
-          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Masonry-style layout using columns-3 */}
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {divisions.map((committee) => (
-            <CommitteeCard key={committee.id} committee={committee} members={members} />
+            <div key={committee.id} className="break-inside-avoid mb-6">
+              <CommitteeCard committee={committee} members={members} />
+            </div>
           ))}
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function CommitteeCard({ committee, members }: { committee: any, members: any }) {
+  const [isExpanded, setIsExpanded] = React.useState(false)
+  
+  const heads = committee.users.filter((u: any) => u.role !== 'student_member')
+  const trainees = committee.users.filter((u: any) => u.role === 'student_member')
+
   return (
-    <Card className="glass-card hover:border-primary/30 transition-all group border-white/5 shadow-xl">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">{committee.name}</CardTitle>
-            <CardDescription className="text-xs line-clamp-1">{committee.description || `Management of ${committee.name}`}</CardDescription>
+    <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+      <Card className={cn(
+        "glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group",
+        isExpanded ? "ring-2 ring-primary/30" : "hover:border-primary/20"
+      )}>
+        <CardHeader className="pb-4 pt-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-black tracking-tight group-hover:text-primary transition-colors leading-tight">
+                {committee.name}
+              </CardTitle>
+              <CardDescription className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest opacity-60">
+                {committee.type} Unit
+              </CardDescription>
+            </div>
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-2 bg-primary/5 rounded-full hover:bg-primary/20 transition-colors text-primary"
+            >
+              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                <ChevronDown className="h-5 w-5" />
+              </motion.div>
+            </button>
           </div>
-          <div className="p-2 bg-primary/10 rounded-lg group-hover:scale-110 transition-transform">
-            <Users className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center">
-              <Users2 className="mr-1.5 h-3 w-3" /> Members ({committee.users.length})
-            </span>
-            
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-primary/20 hover:text-primary">
-                  <UserPlus className="h-3.5 w-3.5" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Assign Member to {committee.name}</DialogTitle>
-                  <DialogDescription>Add a member to this functional unit.</DialogDescription>
-                </DialogHeader>
-                <form action={assignMemberToCommittee} className="space-y-4 mt-4">
-                  <input type="hidden" name="committeeId" value={committee.id} />
-                  <div className="space-y-2">
-                    <Label htmlFor="userId">Select Member</Label>
-                    <select id="userId" name="userId" required className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring">
-                      <option value="">Choose a member...</option>
-                      {members.map((m: any) => (
-                        <option key={m.id} value={m.id}>{m.fullName} ({m.role.replace("_", " ")})</option>
-                      ))}
+        </CardHeader>
+        
+        <CardContent className="space-y-6 pb-6">
+          {/* Heads Section (Always Visible) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center">
+                <Shield className="mr-1.5 h-3 w-3" /> Dept Heads
+              </span>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-primary/20 hover:text-primary">
+                    <UserPlus className="h-3 w-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-card border-white/10">
+                  <DialogHeader><DialogTitle>Assign to {committee.name}</DialogTitle></DialogHeader>
+                  <form action={assignMemberToCommittee} className="space-y-4 mt-4">
+                    <input type="hidden" name="committeeId" value={committee.id} />
+                    <select name="userId" className="flex h-10 w-full rounded-md border bg-background/50 px-3 text-sm">
+                      {members.map((m: any) => <option key={m.id} value={m.id}>{m.fullName}</option>)}
                     </select>
+                    <Button type="submit" className="w-full">Assign</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <div className="grid gap-2">
+              {heads.map((user: any) => (
+                <div key={user.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="h-7 w-7 rounded-lg bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
+                      {user.fullName[0]}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-[11px] font-black truncate text-primary uppercase">{user.fullName}</p>
+                      <p className="text-[9px] text-muted-foreground/80 font-bold truncate tracking-tight">{user.designation}</p>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full">Assign Member</Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+                  <form action={removeMemberFromCommittee}>
+                    <input type="hidden" name="committeeId" value={committee.id} />
+                    <input type="hidden" name="userId" value={user.id} />
+                    <button type="submit" className="p-1 text-muted-foreground hover:text-destructive transition-colors">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </form>
+                </div>
+              ))}
+              {heads.length === 0 && <p className="text-[10px] text-muted-foreground italic text-center py-2">No HODs assigned.</p>}
+            </div>
           </div>
-          
-          <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-2 no-scrollbar custom-scrollbar">
-            {committee.users.map((user: any) => (
-              <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:bg-white/5 transition-colors group/member">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    user.role === 'super_admin' ? 'bg-amber-500/20 text-amber-500' : 
-                    user.role === 'faculty_admin' ? 'bg-blue-500/20 text-blue-500' : 'bg-primary/20 text-primary'
-                  }`}>
-                    {user.fullName.split(' ').map((n: string) => n[0]).join('')}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-xs font-bold truncate leading-none">{user.fullName}</p>
-                    <p className="text-[9px] text-muted-foreground truncate mt-1 uppercase tracking-tighter">
-                      {user.designation || user.role.replace("_", " ")}
-                    </p>
+
+          {/* Trainees Section (Collapsible) */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-3"
+              >
+                <div className="pt-2 border-t border-white/5">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center mb-3">
+                    <Users2 className="mr-1.5 h-3 w-3" /> Trainee Associates ({trainees.length})
+                  </span>
+                  
+                  <div className="grid gap-1.5">
+                    {trainees.map((user: any) => (
+                      <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:bg-white/5 group/trainee">
+                        <div className="flex items-center gap-3">
+                          <ChevronRight className="h-2 w-2 text-primary" />
+                          <p className="text-[11px] font-bold text-muted-foreground group-hover/trainee:text-foreground transition-colors">{user.fullName}</p>
+                        </div>
+                        <form action={removeMemberFromCommittee}>
+                          <input type="hidden" name="committeeId" value={committee.id} />
+                          <input type="hidden" name="userId" value={user.id} />
+                          <button type="submit" className="p-1 text-muted-foreground/30 hover:text-destructive opacity-0 group-hover/trainee:opacity-100 transition-all">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </form>
+                      </div>
+                    ))}
+                    {trainees.length === 0 && <p className="text-[10px] text-muted-foreground italic py-2">No trainees assigned.</p>}
                   </div>
                 </div>
-                
-                <form action={removeMemberFromCommittee}>
-                  <input type="hidden" name="committeeId" value={committee.id} />
-                  <input type="hidden" name="userId" value={user.id} />
-                  <Button variant="ghost" size="icon" type="submit" className="h-6 w-6 opacity-0 group-hover/member:opacity-100 transition-opacity text-destructive hover:bg-destructive/10">
-                    <X className="h-3 w-3" />
-                  </Button>
-                </form>
-              </div>
-            ))}
-            {committee.users.length === 0 && (
-              <p className="text-[10px] text-muted-foreground italic text-center py-4 bg-white/[0.02] rounded-lg border border-dashed border-white/5">
-                No members assigned to this unit.
-              </p>
+              </motion.div>
             )}
-          </div>
-        </div>
+          </AnimatePresence>
 
-        <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-          <div className="flex -space-x-2">
-            {committee.users.slice(0, 4).map((user: any) => (
-              <div key={user.id} className="h-6 w-6 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[8px] font-bold">
-                {user.fullName[0]}
+          {/* Mini Footer (Collapsed State Info) */}
+          {!isExpanded && trainees.length > 0 && (
+            <button 
+              onClick={() => setIsExpanded(true)}
+              className="w-full pt-3 border-t border-white/5 flex items-center justify-center gap-2 group/expand"
+            >
+              <div className="flex -space-x-1.5 overflow-hidden">
+                {trainees.slice(0, 3).map((t: any) => (
+                  <div key={t.id} className="h-4 w-4 rounded-full border border-background bg-muted text-[6px] flex items-center justify-center font-bold">
+                    {t.fullName[0]}
+                  </div>
+                ))}
               </div>
-            ))}
-            {committee.users.length > 4 && (
-              <div className="h-6 w-6 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
-                +{committee.users.length - 4}
-              </div>
-            )}
-          </div>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            {committee.tasks.length} Active Tasks
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  );
+              <span className="text-[10px] font-black text-muted-foreground group-hover/expand:text-primary transition-colors uppercase tracking-tighter">
+                Show {trainees.length} Trainees
+              </span>
+            </button>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
 }
