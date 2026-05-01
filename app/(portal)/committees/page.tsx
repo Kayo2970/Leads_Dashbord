@@ -1,187 +1,173 @@
-import { getCommittees, createCommittee, assignMemberToCommittee, removeMemberFromCommittee } from "@/app/actions/committees";
-import { getMembers } from "@/app/actions/members";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Users, Plus, UserPlus, X, Shield, LayoutGrid, ChevronDown, Award, Users2, Workflow } from "lucide-react";
+"use client"
 
-export default async function CommitteesPage() {
-  const committees = await getCommittees();
-  const members = await getMembers();
+import * as React from "react"
+import { getCommittees, assignMemberToCommittee, removeMemberFromCommittee } from "@/app/actions/committees"
+import { getMembers } from "@/app/actions/members"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Users, Plus, UserPlus, X, ChevronDown, Award, Users2, Shield, Search } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
 
-  const advisory = committees.filter(c => c.type === "ADVISORY");
-  const core = committees.filter(c => c.type === "CORE");
-  const divisions = committees.filter(c => c.type === "DIVISION");
+export default function CommitteesPage() {
+  const [committees, setCommittees] = React.useState<any[]>([])
+  const [members, setMembers] = React.useState<any[]>([])
+  const [search, setSearch] = React.useState("")
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    async function load() {
+      const [c, m] = await Promise.all([getCommittees(), getMembers()])
+      setCommittees(c)
+      setMembers(m)
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const filteredCommittees = committees.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  if (loading) return <div className="flex items-center justify-center h-96 text-muted-foreground animate-pulse font-bold tracking-widest uppercase text-xs">Synchronizing Directory...</div>
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto pb-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organization Structure</h1>
-          <p className="text-muted-foreground mt-1">
-            Browse the LEADS Next Gen Centre hierarchy and committee assignments.
+    <div className="space-y-8 max-w-7xl mx-auto pb-20 px-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent italic uppercase">Committees & Departments</h1>
+          <p className="text-muted-foreground mt-2 font-medium flex items-center gap-2">
+             <Shield className="h-4 w-4 text-primary" /> LEADS Next Gen Centre Directory
           </p>
-        </div>
+        </motion.div>
         
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="border-primary/20 hover:bg-primary/10">
-              <Plus className="mr-2 h-4 w-4" />
-              New Unit
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Create New Committee</DialogTitle>
-              <DialogDescription>Add a new unit to the organization structure.</DialogDescription>
-            </DialogHeader>
-            <form action={createCommittee} className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Committee Name</Label>
-                <Input id="name" name="name" required placeholder="e.g. Technical Division" className="bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Category</Label>
-                <select id="type" name="type" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm">
-                  <option value="DIVISION">Functional Division</option>
-                  <option value="CORE">Core Committee</option>
-                  <option value="ADVISORY">Advisory/Faculty</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input id="description" name="description" placeholder="Brief purpose of this committee" className="bg-background/50" />
-              </div>
-              <Button type="submit" className="w-full">Create Committee</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input 
+              type="text" 
+              placeholder="Search departments..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            />
+          </div>
+          <Button size="sm" className="rounded-full px-6 shadow-lg shadow-primary/20">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Unit
+          </Button>
+        </div>
       </div>
 
-      {/* Advisory & Faculty Section (Expandable/Dropdown type header) */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 rounded-xl border border-primary/20">
-          <Award className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-primary">Advisory & Faculty Committee</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Leadership & Mentorship</p>
+      {/* Flattened Masonry-style Layout */}
+      <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+        {filteredCommittees.map((committee) => (
+          <div key={committee.id} className="break-inside-avoid">
+            <CommitteeCard committee={committee} members={members} />
           </div>
-          <div className="ml-auto flex items-center gap-2">
-             <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-1 rounded tracking-tighter uppercase">{advisory.length} Units</span>
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {advisory.map((committee) => (
-            <CommitteeCard key={committee.id} committee={committee} members={members} />
-          ))}
-        </div>
-      </section>
+        ))}
+      </div>
 
-      {/* Core Committee Section */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-secondary/10 rounded-xl border border-secondary/20">
-          <Shield className="h-6 w-6 text-secondary-foreground" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">Core Executive Committee</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Management & Strategy</p>
-          </div>
-          <div className="ml-auto">
-             <span className="text-[10px] font-black bg-secondary/20 text-secondary-foreground px-2 py-1 rounded tracking-tighter uppercase">{core.length} Units</span>
-          </div>
+      {filteredCommittees.length === 0 && (
+        <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+          <Users className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-muted-foreground font-bold italic tracking-widest uppercase text-xs">No matching departments found</p>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {core.map((committee) => (
-            <CommitteeCard key={committee.id} committee={committee} members={members} />
-          ))}
-        </div>
-      </section>
-
-      {/* Divisions Section */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-xl border border-white/10">
-          <Workflow className="h-6 w-6 text-muted-foreground" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">Functional Divisions</h2>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Operations & Trainees</p>
-          </div>
-          <div className="ml-auto">
-             <span className="text-[10px] font-black bg-white/10 text-muted-foreground px-2 py-1 rounded tracking-tighter uppercase">{divisions.length} Units</span>
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {divisions.map((committee) => (
-            <CommitteeCard key={committee.id} committee={committee} members={members} />
-          ))}
-        </div>
-      </section>
+      )}
     </div>
-  );
+  )
 }
 
 function CommitteeCard({ committee, members }: { committee: any, members: any }) {
+  const [isExpanded, setIsExpanded] = React.useState(false)
+  
+  // Sorting: Heads first, then Trainees (Already handled by action, but ensuring UI clarity)
+  const heads = committee.users.filter((u: any) => u.role !== 'student_member')
+  const trainees = committee.users.filter((u: any) => u.role === 'student_member')
+
   return (
-    <Card className="glass-card hover:border-primary/30 transition-all group border-white/5 shadow-xl">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">{committee.name}</CardTitle>
-            <CardDescription className="text-xs line-clamp-1">{committee.description || `Management of ${committee.name}`}</CardDescription>
-          </div>
-          <div className="p-2 bg-primary/10 rounded-lg group-hover:scale-110 transition-transform">
-            <Users className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center">
-              <Users2 className="mr-1.5 h-3 w-3" /> Members ({committee.users.length})
-            </span>
-            
+    <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+      <Card className={cn(
+        "glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group",
+        isExpanded ? "ring-2 ring-primary/30" : "hover:border-primary/20"
+      )}>
+        {/* Dynamic header stripe based on size */}
+        <div className={cn(
+          "h-1 w-full bg-gradient-to-r",
+          committee.users.length > 10 ? "from-primary via-teal-500 to-primary" : "from-primary/40 to-transparent"
+        )} />
+        
+        <CardHeader className="pb-4 pt-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <CardTitle className="text-lg font-black tracking-tight group-hover:text-primary transition-colors leading-tight uppercase">
+                {committee.name}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                 <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{committee.users.length} Personnel</span>
+                 {committee.type === 'ADVISORY' && <Award className="h-3 w-3 text-primary" />}
+              </div>
+            </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-primary/20 hover:text-primary">
-                  <UserPlus className="h-3.5 w-3.5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-primary/20 hover:text-primary text-muted-foreground">
+                  <UserPlus className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
+              <DialogContent className="glass-card border-white/10">
                 <DialogHeader>
-                  <DialogTitle>Assign Member to {committee.name}</DialogTitle>
-                  <DialogDescription>Add a member to this functional unit.</DialogDescription>
+                  <DialogTitle>Add Member to {committee.name}</DialogTitle>
                 </DialogHeader>
                 <form action={assignMemberToCommittee} className="space-y-4 mt-4">
                   <input type="hidden" name="committeeId" value={committee.id} />
-                  <div className="space-y-2">
-                    <Label htmlFor="userId">Select Member</Label>
-                    <select id="userId" name="userId" required className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring">
-                      <option value="">Choose a member...</option>
-                      {members.map((m: any) => (
-                        <option key={m.id} value={m.id}>{m.fullName} ({m.role.replace("_", " ")})</option>
-                      ))}
-                    </select>
-                  </div>
+                  <select name="userId" className="flex h-10 w-full rounded-md border bg-background/50 px-3 text-sm">
+                    {members.map((m: any) => <option key={m.id} value={m.id}>{m.fullName}</option>)}
+                  </select>
+                  <Input name="designation" placeholder="Role within this committee (optional)" className="bg-background/50" />
                   <Button type="submit" className="w-full">Assign Member</Button>
                 </form>
               </DialogContent>
             </Dialog>
           </div>
-          
-          <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-2 no-scrollbar custom-scrollbar">
+        </CardHeader>
+        
+        <CardContent className="space-y-4 pb-6">
+          {/* Member List */}
+          <div className="space-y-2">
             {committee.users.map((user: any) => (
-              <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:bg-white/5 transition-colors group/member">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    user.role === 'super_admin' ? 'bg-amber-500/20 text-amber-500' : 
-                    user.role === 'faculty_admin' ? 'bg-blue-500/20 text-blue-500' : 'bg-primary/20 text-primary'
-                  }`}>
-                    {user.fullName.split(' ').map((n: string) => n[0]).join('')}
+              <div key={user.id} className="flex items-center justify-between p-1.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group/member">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="relative h-9 w-9 shrink-0">
+                    {user.profilePicture ? (
+                      <img 
+                        src={user.profilePicture} 
+                        alt={user.fullName}
+                        className="h-full w-full rounded-full object-cover border border-white/10 shadow-sm"
+                        onError={(e) => {
+                          (e.target as any).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random&color=fff`
+                        }}
+                      />
+                    ) : (
+                      <div className="h-full w-full rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20 uppercase">
+                        {user.fullName.split(' ').map((n: any) => n[0]).join('')}
+                      </div>
+                    )}
+                    {user.role !== 'student_member' && (
+                      <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-0.5 border border-background shadow-lg">
+                        <Award className="h-2 w-2 text-white" />
+                      </div>
+                    )}
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-bold truncate leading-none">{user.fullName}</p>
-                    <p className="text-[9px] text-muted-foreground truncate mt-1 uppercase tracking-tighter">
+                    <p className={cn(
+                      "text-[11px] font-black truncate leading-none uppercase tracking-tighter",
+                      user.role !== 'student_member' ? "text-primary" : "text-foreground"
+                    )}>
+                      {user.fullName}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground/80 font-bold truncate tracking-tighter mt-1 uppercase italic">
                       {user.designation || user.role.replace("_", " ")}
                     </p>
                   </div>
@@ -190,38 +176,21 @@ function CommitteeCard({ committee, members }: { committee: any, members: any })
                 <form action={removeMemberFromCommittee}>
                   <input type="hidden" name="committeeId" value={committee.id} />
                   <input type="hidden" name="userId" value={user.id} />
-                  <Button variant="ghost" size="icon" type="submit" className="h-6 w-6 opacity-0 group-hover/member:opacity-100 transition-opacity text-destructive hover:bg-destructive/10">
-                    <X className="h-3 w-3" />
-                  </Button>
+                  <button type="submit" className="p-1 text-muted-foreground/30 hover:text-destructive opacity-0 group-hover/member:opacity-100 transition-all">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </form>
               </div>
             ))}
+            
             {committee.users.length === 0 && (
-              <p className="text-[10px] text-muted-foreground italic text-center py-4 bg-white/[0.02] rounded-lg border border-dashed border-white/5">
-                No members assigned to this unit.
+              <p className="text-[10px] text-muted-foreground italic text-center py-6 border border-dashed border-white/5 rounded-2xl">
+                No active personnel assigned.
               </p>
             )}
           </div>
-        </div>
-
-        <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-          <div className="flex -space-x-2">
-            {committee.users.slice(0, 4).map((user: any) => (
-              <div key={user.id} className="h-6 w-6 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[8px] font-bold">
-                {user.fullName[0]}
-              </div>
-            ))}
-            {committee.users.length > 4 && (
-              <div className="h-6 w-6 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
-                +{committee.users.length - 4}
-              </div>
-            )}
-          </div>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            {committee.tasks.length} Active Tasks
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
 }
