@@ -77,26 +77,23 @@ export default function CommitteesPage() {
 function CommitteeCard({ committee, members }: { committee: any, members: any }) {
   return (
     <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-      <Card className="glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group hover:border-primary/20">
-        <div className={cn(
-          "h-1 w-full bg-gradient-to-r",
-          committee.users.length > 10 ? "from-primary via-teal-500 to-primary" : "from-primary/40 to-transparent"
-        )} />
-        
+      <Card className={cn(
+        "glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group hover:border-white/20"
+      )}>
         <CardHeader className="pb-4 pt-6">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <CardTitle className="text-lg font-black tracking-tight group-hover:text-primary transition-colors leading-tight uppercase">
+              <CardTitle className="text-base font-black tracking-tight group-hover:text-primary transition-colors leading-tight uppercase italic">
                 {committee.name}
               </CardTitle>
               <div className="flex items-center gap-2">
-                 <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{committee.users.length} Personnel</span>
+                 <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">{committee.users.length} Members</span>
               </div>
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-primary/20 hover:text-primary text-muted-foreground">
-                  <UserPlus className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-white/5 text-muted-foreground">
+                  <UserPlus className="h-3.5 w-3.5" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="glass-card border-white/10">
@@ -157,12 +154,12 @@ function MemberListItem({ user, committeeId }: { user: any, committeeId: string 
             </div>
             <div className="overflow-hidden text-left">
               <p className={cn(
-                "text-[11px] font-black truncate leading-none uppercase tracking-tighter group-hover/member:text-primary transition-colors",
-                user.role !== 'student_member' ? "text-primary" : "text-foreground"
+                "text-[10px] font-black truncate leading-none uppercase tracking-tighter transition-colors",
+                user.role !== 'student_member' ? "text-primary/80" : "text-muted-foreground group-hover/member:text-foreground"
               )}>
                 {user.fullName}
               </p>
-              <p className="text-[9px] text-muted-foreground/80 font-bold truncate tracking-tighter mt-1 uppercase italic">
+              <p className="text-[8px] text-muted-foreground/50 font-bold truncate tracking-tighter mt-1 uppercase italic">
                 {user.designation || user.role.replace("_", " ")}
               </p>
             </div>

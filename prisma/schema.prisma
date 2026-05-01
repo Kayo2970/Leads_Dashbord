@@ -23,8 +23,8 @@ model User {
   committees      Committee[] // Many-to-many relationship
   
   createdEvents       Event[]        @relation("EventCreator")
-  assignedTasks       Task[]         @relation("TaskAssignee")
   createdTasks        Task[]         @relation("TaskCreator")
+  assignedTasks       TaskAssignment[]
   receivedRatings     Rating[]       @relation("RatingSubject")
   givenRatings        Rating[]       @relation("RatingGiver")
   receivedContributions Contribution[] @relation("ContributionSubject")
@@ -82,18 +82,35 @@ model Task {
   id            String    @id @default(uuid())
   title         String
   description   String?
+  status        String    @default("pending") // pending, in-progress, completed
+  priority      String    @default("medium")  // low, medium, high
+  deadline      DateTime?
+  
   eventId       String?
   event         Event?    @relation(fields: [eventId], references: [id])
   committeeId   String?
   committee     Committee? @relation(fields: [committeeId], references: [id])
-  assignedTo    String
-  assignee      User      @relation("TaskAssignee", fields: [assignedTo], references: [id])
-  deadline      DateTime?
-  status        String    @default("pending") // pending, in_progress, completed
+  
   createdBy     String
   creator       User      @relation("TaskCreator", fields: [createdBy], references: [id])
+  
+  assignees     TaskAssignment[]
+  
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   ratings       Rating[]
+}
+
+model TaskAssignment {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  role        String   @default("MEMBER") // LEAD, MEMBER, SPOC, etc.
+  assignedAt  DateTime @default(now())
+
+  @@unique([taskId, userId])
 }
 
 model Rating {
