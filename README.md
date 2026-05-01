@@ -4,11 +4,16 @@ LEADS Portal is an internal office management system with built-in HR functional
 
 ## 🚀 Features
 
-- **Dynamic Dark Theme:** A premium, fully responsive glassmorphism UI with animated aurora background.
-- **Role-Based Dashboards:** Unique dashboard views for Super Admins, Faculty Admins, and Student Members.
-- **Task Management:** Assign and track tasks across various committees with ease.
-- **Performance Ratings:** Built-in 1-5 rating system to track student contributions after each event.
-- **SQL Backend:** Fully integrated local SQLite database powered by Prisma ORM.
+- **Dynamic Dark Theme:** A premium, fully responsive glassmorphism UI with animated aurora background and live theme toggling.
+- **Role-Based Dashboards:** Integrated hierarchy (Professor, Core, Trainee) with different permission levels.
+- **Task Management:** Assign, edit, and track tasks. Superior users can update task details, statuses, and assignees.
+- **Event Scheduling:** Create events with date, time, venue, and description. Tasks can be linked directly to events.
+- **HR Benchmarking:** Advanced rating system with scores for Communication, Punctuality, and Work Quality.
+- **Member Directory:** Onboard new members, set specific designations, and manage committee placements.
+- **Reports & Export:** Master SQL performance reports can be exported directly to Excel (`.xlsx`).
+- **Broadcast System:** Post announcements globally or target specific committees.
+- **Profile Customization:** Personalize your own profile with picture URLs, designations, and details.
+- **SQL Backend:** High-performance local SQLite database powered by Prisma ORM and a singleton connection pattern.
 
 ## 🛠 Tech Stack
 
