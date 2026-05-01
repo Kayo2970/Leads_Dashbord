@@ -1,9 +1,7 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
-const prisma = new PrismaClient();
 const MOCK_USER_EMAIL = "professor@msruas.ac.in";
 
 export async function getProfile() {

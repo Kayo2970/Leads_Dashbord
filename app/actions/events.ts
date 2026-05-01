@@ -1,9 +1,7 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
-const prisma = new PrismaClient();
 
 // For demonstration, we'll mock the active user as the Professor
 // In a real app with next-auth or supabase, you'd get the session here.
