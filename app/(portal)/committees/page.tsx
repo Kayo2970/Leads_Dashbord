@@ -2,13 +2,13 @@
 
 import * as React from "react"
 import { getCommittees, assignMemberToCommittee, removeMemberFromCommittee } from "@/app/actions/committees"
-import { getMembers } from "@/app/actions/members"
+import { getMembers, getMemberProfile } from "@/app/actions/members"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Users, Plus, UserPlus, X, ChevronDown, Award, Users2, Shield, Search } from "lucide-react"
+import { Users, Plus, UserPlus, X, ChevronDown, Award, Users2, Shield, Search, Briefcase, Calendar, CheckSquare, ExternalLink } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -18,15 +18,16 @@ export default function CommitteesPage() {
   const [search, setSearch] = React.useState("")
   const [loading, setLoading] = React.useState(true)
 
-  React.useEffect(() => {
-    async function load() {
-      const [c, m] = await Promise.all([getCommittees(), getMembers()])
-      setCommittees(c)
-      setMembers(m)
-      setLoading(false)
-    }
-    load()
+  const loadData = React.useCallback(async () => {
+    const [c, m] = await Promise.all([getCommittees(), getMembers()])
+    setCommittees(c)
+    setMembers(m)
+    setLoading(false)
   }, [])
+
+  React.useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const filteredCommittees = committees.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -62,7 +63,6 @@ export default function CommitteesPage() {
         </div>
       </div>
 
-      {/* Flattened Masonry-style Layout */}
       <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
         {filteredCommittees.map((committee) => (
           <div key={committee.id} className="break-inside-avoid">
@@ -70,31 +70,14 @@ export default function CommitteesPage() {
           </div>
         ))}
       </div>
-
-      {filteredCommittees.length === 0 && (
-        <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-          <Users className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground font-bold italic tracking-widest uppercase text-xs">No matching departments found</p>
-        </div>
-      )}
     </div>
   )
 }
 
 function CommitteeCard({ committee, members }: { committee: any, members: any }) {
-  const [isExpanded, setIsExpanded] = React.useState(false)
-  
-  // Sorting: Heads first, then Trainees (Already handled by action, but ensuring UI clarity)
-  const heads = committee.users.filter((u: any) => u.role !== 'student_member')
-  const trainees = committee.users.filter((u: any) => u.role === 'student_member')
-
   return (
     <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-      <Card className={cn(
-        "glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group",
-        isExpanded ? "ring-2 ring-primary/30" : "hover:border-primary/20"
-      )}>
-        {/* Dynamic header stripe based on size */}
+      <Card className="glass-card border-white/5 transition-all duration-500 overflow-hidden shadow-2xl relative group hover:border-primary/20">
         <div className={cn(
           "h-1 w-full bg-gradient-to-r",
           committee.users.length > 10 ? "from-primary via-teal-500 to-primary" : "from-primary/40 to-transparent"
@@ -108,7 +91,6 @@ function CommitteeCard({ committee, members }: { committee: any, members: any })
               </CardTitle>
               <div className="flex items-center gap-2">
                  <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">{committee.users.length} Personnel</span>
-                 {committee.type === 'ADVISORY' && <Award className="h-3 w-3 text-primary" />}
               </div>
             </div>
             <Dialog>
@@ -118,15 +100,14 @@ function CommitteeCard({ committee, members }: { committee: any, members: any })
                 </Button>
               </DialogTrigger>
               <DialogContent className="glass-card border-white/10">
-                <DialogHeader>
-                  <DialogTitle>Add Member to {committee.name}</DialogTitle>
-                </DialogHeader>
-                <form action={assignMemberToCommittee} className="space-y-4 mt-4">
-                  <input type="hidden" name="committeeId" value={committee.id} />
+                <DialogHeader><DialogTitle>Add to {committee.name}</DialogTitle></DialogHeader>
+                <form action={async (fd) => {
+                  await assignMemberToCommittee(committee.id, fd.get("userId") as string);
+                  window.location.reload();
+                }} className="space-y-4 mt-4">
                   <select name="userId" className="flex h-10 w-full rounded-md border bg-background/50 px-3 text-sm">
                     {members.map((m: any) => <option key={m.id} value={m.id}>{m.fullName}</option>)}
                   </select>
-                  <Input name="designation" placeholder="Role within this committee (optional)" className="bg-background/50" />
                   <Button type="submit" className="w-full">Assign Member</Button>
                 </form>
               </DialogContent>
@@ -135,63 +116,146 @@ function CommitteeCard({ committee, members }: { committee: any, members: any })
         </CardHeader>
         
         <CardContent className="space-y-4 pb-6">
-          {/* Member List */}
           <div className="space-y-2">
             {committee.users.map((user: any) => (
-              <div key={user.id} className="flex items-center justify-between p-1.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group/member">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="relative h-9 w-9 shrink-0">
-                    {user.profilePicture ? (
-                      <img 
-                        src={user.profilePicture} 
-                        alt={user.fullName}
-                        className="h-full w-full rounded-full object-cover border border-white/10 shadow-sm"
-                        onError={(e) => {
-                          (e.target as any).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random&color=fff`
-                        }}
-                      />
-                    ) : (
-                      <div className="h-full w-full rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20 uppercase">
-                        {user.fullName.split(' ').map((n: any) => n[0]).join('')}
-                      </div>
-                    )}
-                    {user.role !== 'student_member' && (
-                      <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-0.5 border border-background shadow-lg">
-                        <Award className="h-2 w-2 text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className={cn(
-                      "text-[11px] font-black truncate leading-none uppercase tracking-tighter",
-                      user.role !== 'student_member' ? "text-primary" : "text-foreground"
-                    )}>
-                      {user.fullName}
-                    </p>
-                    <p className="text-[9px] text-muted-foreground/80 font-bold truncate tracking-tighter mt-1 uppercase italic">
-                      {user.designation || user.role.replace("_", " ")}
-                    </p>
-                  </div>
-                </div>
-                
-                <form action={removeMemberFromCommittee}>
-                  <input type="hidden" name="committeeId" value={committee.id} />
-                  <input type="hidden" name="userId" value={user.id} />
-                  <button type="submit" className="p-1 text-muted-foreground/30 hover:text-destructive opacity-0 group-hover/member:opacity-100 transition-all">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </form>
-              </div>
+              <MemberListItem key={user.id} user={user} committeeId={committee.id} />
             ))}
-            
-            {committee.users.length === 0 && (
-              <p className="text-[10px] text-muted-foreground italic text-center py-6 border border-dashed border-white/5 rounded-2xl">
-                No active personnel assigned.
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>
     </motion.div>
+  )
+}
+
+function MemberListItem({ user, committeeId }: { user: any, committeeId: string }) {
+  const [profile, setProfile] = React.useState<any>(null)
+  const [loading, setLoading] = React.useState(false)
+
+  const handleOpenProfile = async () => {
+    setLoading(true)
+    const data = await getMemberProfile(user.id)
+    setProfile(data)
+    setLoading(false)
+  }
+
+  return (
+    <Dialog onOpenChange={(open) => open && handleOpenProfile()}>
+      <DialogTrigger asChild>
+        <div className="flex items-center justify-between p-1.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.08] transition-all group/member cursor-pointer">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="relative h-9 w-9 shrink-0">
+              <img 
+                src={user.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random&color=fff`}
+                alt={user.fullName}
+                className="h-full w-full rounded-full object-cover border border-white/10 shadow-sm"
+              />
+              {user.role !== 'student_member' && (
+                <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-0.5 border border-background shadow-lg">
+                  <Award className="h-2 w-2 text-white" />
+                </div>
+              )}
+            </div>
+            <div className="overflow-hidden text-left">
+              <p className={cn(
+                "text-[11px] font-black truncate leading-none uppercase tracking-tighter group-hover/member:text-primary transition-colors",
+                user.role !== 'student_member' ? "text-primary" : "text-foreground"
+              )}>
+                {user.fullName}
+              </p>
+              <p className="text-[9px] text-muted-foreground/80 font-bold truncate tracking-tighter mt-1 uppercase italic">
+                {user.designation || user.role.replace("_", " ")}
+              </p>
+            </div>
+          </div>
+          
+          <ChevronDown className="h-3 w-3 text-muted-foreground/30 group-hover/member:text-primary transition-colors" />
+        </div>
+      </DialogTrigger>
+      
+      <DialogContent className="glass-card border-white/10 sm:max-w-[500px] p-0 overflow-hidden">
+        {loading ? (
+          <div className="p-20 text-center animate-pulse font-black uppercase text-xs tracking-widest">Loading Profile...</div>
+        ) : profile ? (
+          <div className="flex flex-col">
+            {/* Profile Header */}
+            <div className="p-6 bg-gradient-to-br from-primary/20 via-transparent to-transparent border-b border-white/5">
+              <div className="flex items-center gap-6">
+                <img 
+                  src={profile.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName)}&background=random&color=fff`}
+                  className="h-20 w-20 rounded-2xl object-cover border-2 border-primary/20 shadow-2xl"
+                />
+                <div>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-primary">{profile.fullName}</h2>
+                  <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{profile.designation}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">{profile.email}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {/* Committees Section */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary/60 flex items-center gap-2">
+                  <Briefcase className="h-3 w-3" /> Departments
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {profile.committees.map((c: any) => (
+                    <span key={c.id} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-tighter">
+                      {c.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Event Roles Section */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary/60 flex items-center gap-2">
+                  <Calendar className="h-3 w-3" /> Event Assignments
+                </h3>
+                <div className="grid gap-2">
+                  {profile.eventAssignments.map((ea: any) => (
+                    <div key={ea.id} className="p-3 rounded-xl bg-black/20 border border-white/5 flex justify-between items-center">
+                      <span className="text-xs font-bold text-foreground">{ea.event.name}</span>
+                      <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded italic">
+                        {ea.designation || "Support"}
+                      </span>
+                    </div>
+                  ))}
+                  {profile.eventAssignments.length === 0 && <p className="text-[10px] text-muted-foreground italic">No specific event roles assigned.</p>}
+                </div>
+              </div>
+
+              {/* Active Tasks Section */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-primary/60 flex items-center gap-2">
+                  <CheckSquare className="h-3 w-3" /> Active Tasks
+                </h3>
+                <div className="grid gap-2">
+                  {profile.assignedTasks.filter((t:any) => t.status !== 'completed').map((task: any) => (
+                    <div key={task.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
+                      <div className="flex justify-between items-start">
+                        <p className="text-xs font-bold">{task.title}</p>
+                        <span className="text-[9px] font-black text-yellow-500 uppercase">{task.status}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[9px] text-muted-foreground font-medium">
+                        <span>Due: {new Date(task.deadline).toLocaleDateString()}</span>
+                        <span className="italic">{task.event?.name || "General"}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {profile.assignedTasks.length === 0 && <p className="text-[10px] text-muted-foreground italic">No pending tasks.</p>}
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-white/5 bg-black/20">
+              <Button variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary" onClick={() => window.location.href=`/members`}>
+                View Full Records <ExternalLink className="ml-2 h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
   )
 }

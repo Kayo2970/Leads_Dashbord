@@ -69,3 +69,24 @@ export async function updateMember(userId: string, formData: FormData) {
   revalidatePath("/members");
   revalidatePath("/dashboard");
 }
+export async function getMemberProfile(userId: string) {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      committees: true,
+      eventAssignments: {
+        include: {
+          event: true
+        }
+      },
+      assignedTasks: {
+        include: {
+          event: true
+        },
+        orderBy: {
+          deadline: "asc"
+        }
+      }
+    }
+  });
+}
