@@ -79,8 +79,25 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto p-6 bg-transparent">
-          {children}
+        <div className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 p-6">
+            {children}
+          </div>
+          
+          {/* Footer */}
+          <footer className="px-6 py-4 border-t border-white/5 backdrop-blur-md bg-black/20">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-2 text-[10px] uppercase tracking-widest font-bold">
+              <div className="text-muted-foreground">
+                © 2026 <span className="text-primary">LEADS Next Gen Centre</span>. All rights reserved.
+              </div>
+              <div className="text-muted-foreground text-center md:text-right">
+                Designed & Developed by <span className="text-primary hover:underline cursor-default">Kayomarz Pavri</span>
+                <br className="md:hidden" />
+                <span className="hidden md:inline mx-2 text-white/20">|</span>
+                Head of Design & Social Media
+              </div>
+            </div>
+          </footer>
         </div>
       </main>
     </div>
