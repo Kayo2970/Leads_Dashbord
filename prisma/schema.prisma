@@ -15,6 +15,8 @@ model User {
   email            String       @unique
   fullName         String
   role             String       // super_admin, faculty_admin, student_member
+  designation      String?      // e.g. "President", "Member"
+  profilePicture   String?
   committeeId      String?
   committee        Committee?   @relation(fields: [committeeId], references: [id])
   createdAt        DateTime     @default(now())
@@ -41,6 +43,8 @@ model Event {
   id            String         @id @default(uuid())
   name          String
   date          DateTime
+  time          String?
+  venue         String?
   description   String?
   createdBy     String
   creator       User           @relation("EventCreator", fields: [createdBy], references: [id])
