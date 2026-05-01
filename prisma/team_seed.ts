@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -44,7 +45,8 @@ const teamData = {
 };
 
 async function main() {
-  console.log("Starting team sync with photos...");
+  console.log("Starting team sync with encrypted profiles...");
+  const defaultPassword = await bcrypt.hash("password123", 12);
 
   // 1. Ensure Committees exist
   const committees = [
@@ -66,7 +68,7 @@ async function main() {
     await prisma.user.upsert({
       where: { email: person.email },
       update: { fullName: person.name, role: 'super_admin', designation: person.role, profilePicture: person.image },
-      create: { email: person.email, fullName: person.name, role: 'super_admin', designation: person.role, profilePicture: person.image }
+      create: { email: person.email, fullName: person.name, role: 'super_admin', designation: person.role, profilePicture: person.image, password: defaultPassword }
     });
   }
 
@@ -75,7 +77,7 @@ async function main() {
     await prisma.user.upsert({
       where: { email: person.email },
       update: { fullName: person.name, role: 'faculty_admin', designation: person.role, profilePicture: person.image },
-      create: { email: person.email, fullName: person.name, role: 'faculty_admin', designation: person.role, profilePicture: person.image }
+      create: { email: person.email, fullName: person.name, role: 'faculty_admin', designation: person.role, profilePicture: person.image, password: defaultPassword }
     });
   }
 
@@ -96,12 +98,13 @@ async function main() {
         role: 'student_member', 
         designation: person.role,
         committeeId: person.committee,
-        profilePicture: person.image
+        profilePicture: person.image,
+        password: defaultPassword
       }
     });
   }
 
-  console.log("Team sync with photos completed successfully!");
+  console.log("Encrypted team sync completed successfully!");
 }
 
 main()
