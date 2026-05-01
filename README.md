@@ -46,24 +46,23 @@ To run this application locally:
    Open [http://localhost:3000](http://localhost:3000) in your browser. 
    *(Note: If viewing on another device on your local network, run `npm run dev -- -H 0.0.0.0`)*
 
-## 🔐 Login Details (Local Testing)
+## 🔐 Security & Access Control
 
-For local development and testing, you can use the following mock accounts representing the 3-tier hierarchy:
+The portal now features an encrypted authentication system and granular group policies.
 
-**Level 1: Professor / Super Admin**
-- Email: `professor@msruas.ac.in`
-- Password: `password123`
-- *Capabilities: Assign work to anyone, review timelines, generate/export reports, full overview.*
+### Root System User (Hidden)
+- **Email**: `root@leads.msruas.ac.in`
+- **Password**: `RootSecurePassword123!` *(Encrypted with Bcrypt)*
+- **Capabilities**: Full system control, privilege management, and group policy editing.
 
-**Level 2: Core Committee Member**
-- Email: `core@msruas.ac.in`
-- Password: `password123`
-- *Capabilities: Assign work to trainees, review trainee performance, manage specific events.*
+### Group Policies
+Access to menu items is controlled by a Global Policy:
+- **Professor (Super Admin)**: Full access to all tools and reporting.
+- **Core Committee (Faculty Admin)**: Management access for events and tasks.
+- **Student Member (Trainee)**: Access to tasks, events, and personal performance.
 
-**Level 3: Trainee / Student Member**
-- Email: `trainee@msruas.ac.in`
-- Password: `password123`
-- *Capabilities: View assigned work, submit completed tasks, view personal performance ratings.*
+## 📁 System Logs
+All major architectural changes and security updates are tracked in [LOGS.md](./LOGS.md).
 
 ---
-*Built for the LEADS Next Gen Centre | Version 1.0*
+*Built for the LEADS Next Gen Centre | Version 1.1*

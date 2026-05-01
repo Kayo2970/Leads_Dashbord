@@ -29,3 +29,25 @@ export async function createMember(formData: FormData) {
 
   revalidatePath("/members");
 }
+
+export async function updateMember(userId: string, formData: FormData) {
+  const fullName = formData.get("fullName") as string;
+  const role = formData.get("role") as string;
+  const designation = formData.get("designation") as string;
+  const committeeId = formData.get("committeeId") as string;
+  const email = formData.get("email") as string;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      fullName,
+      role,
+      designation,
+      committeeId: committeeId || null,
+      email
+    }
+  });
+
+  revalidatePath("/members");
+  revalidatePath("/dashboard");
+}

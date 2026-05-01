@@ -11,23 +11,34 @@ datasource db {
 }
 
 model User {
-  id               String       @id @default(uuid())
-  email            String       @unique
-  fullName         String
-  role             String       // super_admin, faculty_admin, student_member
-  designation      String?      // e.g. "President", "Member"
-  profilePicture   String?
-  committeeId      String?
-  committee        Committee?   @relation(fields: [committeeId], references: [id])
-  createdAt        DateTime     @default(now())
-  createdEvents    Event[]      @relation("EventCreator")
-  assignedTasks    Task[]       @relation("TaskAssignee")
-  createdTasks     Task[]       @relation("TaskCreator")
-  receivedRatings  Rating[]     @relation("RatingSubject")
-  givenRatings     Rating[]     @relation("RatingGiver")
-  contributions    Contribution[] @relation("ContributionSubject")
+  id              String      @id @default(uuid())
+  email           String      @unique
+  fullName        String
+  password        String?     // Hashed password
+  isAdmin         Boolean     @default(false)
+  role            String      // super_admin, faculty_admin, student_member
+  designation     String?
+  committeeId     String?
+  profilePicture  String?
+  permissions     String?     // JSON string for granular access
+  committee       Committee?  @relation(fields: [committeeId], references: [id])
+  
+  createdEvents       Event[]        @relation("EventCreator")
+  assignedTasks       Task[]         @relation("TaskAssignee")
+  createdTasks        Task[]         @relation("TaskCreator")
+  receivedRatings     Rating[]       @relation("RatingSubject")
+  givenRatings        Rating[]       @relation("RatingGiver")
+  receivedContributions Contribution[] @relation("ContributionSubject")
   loggedContributions Contribution[] @relation("ContributionLogger")
-  announcements    Announcement[] @relation("AnnouncementCreator")
+  announcements       Announcement[] @relation("AnnouncementCreator")
+  
+  createdAt       DateTime    @default(now())
+}
+
+model GroupPolicy {
+  id          String   @id @default("global")
+  menuConfig  String   // JSON string defining which roles see which menus
+  updatedAt   DateTime @updatedAt
 }
 
 model Committee {
