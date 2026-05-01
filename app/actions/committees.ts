@@ -12,7 +12,7 @@ export async function getCommittees() {
     }
   });
 
-  // Sort users within each committee: Heads first (alphabetical), then Trainees (alphabetical)
+  // Sort users within each committee by hierarchy first, then name
   const rolePriority: Record<string, number> = {
     super_admin: 1,
     faculty_admin: 2,
@@ -25,14 +25,10 @@ export async function getCommittees() {
       const priorityA = rolePriority[a.role] || 4;
       const priorityB = rolePriority[b.role] || 4;
       
-      // Separate Heads (1, 2) from Trainees (3)
-      const isHeadA = priorityA < 3;
-      const isHeadB = priorityB < 3;
-
-      if (isHeadA && !isHeadB) return -1;
-      if (!isHeadA && isHeadB) return 1;
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
       
-      // Within groups, sort alphabetically
       return a.fullName.localeCompare(b.fullName);
     })
   }));
