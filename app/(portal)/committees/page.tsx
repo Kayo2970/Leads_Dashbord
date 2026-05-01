@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, Users, CheckSquare } from "lucide-react";
 
 export default async function CommitteesPage() {
   const committees = await prisma.committee.findMany({
