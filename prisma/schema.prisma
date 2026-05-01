@@ -30,6 +30,7 @@ model User {
   receivedContributions Contribution[] @relation("ContributionSubject")
   loggedContributions Contribution[] @relation("ContributionLogger")
   announcements       Announcement[] @relation("AnnouncementCreator")
+  eventAssignments    EventAssignment[]
   
   createdAt       DateTime    @default(now())
 }
@@ -62,6 +63,19 @@ model Event {
   createdAt     DateTime       @default(now())
   tasks         Task[]
   contributions Contribution[]
+  teamAssignments EventAssignment[]
+}
+
+model EventAssignment {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  designation String?  // Specific role for this event
+  assignedAt  DateTime @default(now())
+
+  @@unique([eventId, userId])
 }
 
 model Task {

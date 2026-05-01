@@ -3,9 +3,7 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-// For demonstration, we'll mock the active user as the Professor
-// In a real app with next-auth or supabase, you'd get the session here.
-const MOCK_PROFESSOR_EMAIL = "professor@msruas.ac.in";
+const MOCK_PROFESSOR_EMAIL = "root@leads.msruas.ac.in";
 
 export async function createEvent(formData: FormData) {
   const name = formData.get("name") as string;
@@ -18,7 +16,7 @@ export async function createEvent(formData: FormData) {
     where: { email: MOCK_PROFESSOR_EMAIL }
   });
 
-  if (!professor) throw new Error("Professor user not found");
+  if (!professor) throw new Error("Admin user not found");
 
   await prisma.event.create({
     data: {
@@ -40,7 +38,54 @@ export async function getEvents() {
     orderBy: { date: "desc" },
     include: {
       creator: true,
-      tasks: true
+      tasks: {
+        include: {
+          assignee: true
+        }
+      },
+      teamAssignments: {
+        include: {
+          user: true
+        }
+      }
     }
   });
+}
+
+export async function assignTeamToEvent(formData: FormData) {
+  const eventId = formData.get("eventId") as string;
+  const userId = formData.get("userId") as string;
+  const designation = formData.get("designation") as string;
+
+  await prisma.eventAssignment.upsert({
+    where: {
+      eventId_userId: {
+        eventId,
+        userId
+      }
+    },
+    update: {
+      designation
+    },
+    create: {
+      eventId,
+      userId,
+      designation
+    }
+  });
+
+  revalidatePath("/events");
+}
+
+export async function removeFromEventTeam(eventId: string, userId: string) {
+  await prisma.eventAssignment.delete({
+    where: {
+      eventId_userId: {
+        eventId,
+        userId
+      }
+    }
+  });
+
+  revalidatePath("/events");
 }
