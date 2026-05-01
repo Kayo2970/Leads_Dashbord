@@ -40,7 +40,11 @@ export async function getEvents() {
       creator: true,
       tasks: {
         include: {
-          assignee: true
+          assignees: {
+            include: {
+              user: true
+            }
+          }
         }
       },
       teamAssignments: {
